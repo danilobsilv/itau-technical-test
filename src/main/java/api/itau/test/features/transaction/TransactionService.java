@@ -14,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.util.UriComponentsBuilder;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -34,7 +32,7 @@ public class TransactionService {
     private List<TransactionValidator> validators;
 
     @Transactional
-    public ResponseEntity<TransactionDetails> saveTransaction(@RequestBody @Valid CreateTransactionDto data, UriComponentsBuilder uriComponentsBuilder){
+    public Transaction saveTransaction(@RequestBody @Valid CreateTransactionDto data){
         validators.forEach(validator -> validator.validate(data));
 
         User user = userRepository.findById(data.userId())
@@ -52,19 +50,12 @@ public class TransactionService {
                         .transactionDateTime(data.transactionDateTime())
                         .build();
 
-        transactionRepository.save(transaction);
-
-
-        var uri = uriComponentsBuilder.path("/transaction/{transaction_id}").buildAndExpand(user.getUserId()).toUri();
-        System.out.println("URI de resposta da transação: " + uri);
-
-        return ResponseEntity.created(uri).body(new TransactionDetails(transaction));
+        return transactionRepository.save(transaction);
     }
 
-    @Transactional
-    public ResponseEntity<Page<TransactionDetails>> getAllTransactions(@PageableDefault(size = 10, sort = {"transactionId"}) Pageable pageable){
-        var page = transactionRepository.findAll(pageable).map(TransactionDetails::new);
+    @Transactional()
+    public Page<TransactionDetails> getAllTransactions(@PageableDefault(size = 10, sort = {"transactionId"}) Pageable pageable){
+        return transactionRepository.findAll(pageable).map(TransactionDetails::new);
 
-        return ResponseEntity.ok(page);
     }
 }

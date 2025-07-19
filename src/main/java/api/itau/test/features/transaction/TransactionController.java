@@ -20,11 +20,18 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<TransactionDetails> saveTransaction(@RequestBody @Valid CreateTransactionDto data, UriComponentsBuilder uriComponentsBuilder){
-        return transactionService.saveTransaction(data, uriComponentsBuilder);
+        Transaction transaction = transactionService.saveTransaction(data);
+
+        var uri = uriComponentsBuilder.path("/transaction/{transaction_id}").buildAndExpand(transaction.getTransactionId()).toUri();
+        System.out.println("URI de resposta da transação: " + uri);
+
+        return ResponseEntity.created(uri).body(new TransactionDetails(transaction));
+
     }
 
     @GetMapping
     public ResponseEntity<Page<TransactionDetails>> getAllTransactions(@PageableDefault(size = 10, sort = {"transactionId"}) Pageable pageable){
-        return transactionService.getAllTransactions(pageable);
+        Page<TransactionDetails>  transactionDetails = transactionService.getAllTransactions(pageable);
+        return ResponseEntity.ok(transactionDetails);
     }
 }

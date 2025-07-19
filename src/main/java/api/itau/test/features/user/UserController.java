@@ -20,11 +20,17 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserDetailsDTO> createUser(@RequestBody @Valid InsertUserDTO data, UriComponentsBuilder uriComponentsBuilder) {
-        return userService.createUser(data, uriComponentsBuilder);
+        User user = userService.createUser(data);
+
+        var uri = uriComponentsBuilder.path("/user/{user_id}").buildAndExpand(user.getUserId()).toUri();
+        System.out.println("URI de resposta do user: " + uri);
+
+        return ResponseEntity.created(uri).body(new UserDetailsDTO(user));
     }
 
     @GetMapping
     public ResponseEntity<Page<UserDetailsDTO>> getAllUsers(@PageableDefault(size = 10, sort = {"userName"}) Pageable pageable){
-        return userService.getAllUsers(pageable);
+        Page<UserDetailsDTO> userDetailsDTOS = userService.getAllUsers(pageable);
+        return ResponseEntity.ok(userDetailsDTOS);
     }
 }
