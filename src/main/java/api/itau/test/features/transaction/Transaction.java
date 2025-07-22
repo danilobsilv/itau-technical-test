@@ -18,7 +18,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "transactions")
+@Table(name = "transactions", indexes = {
+    @Index(name = "idx_transaction_user_asset_date",
+           columnList = "user_id, asset_id, transaction_datetime DESC")
+})
 public class Transaction {
 
     @Id

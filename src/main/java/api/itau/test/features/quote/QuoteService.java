@@ -19,7 +19,6 @@ public class QuoteService {
 
     @Autowired
     QuoteRepository quoteRepository;
-
     @Autowired
     AssetRepository assetRepository;
 

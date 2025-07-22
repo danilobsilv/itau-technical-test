@@ -4,8 +4,10 @@ import api.itau.test.exceptionHandler.resourceNotFoundException.ResourceNotFound
 import api.itau.test.features.asset.AssetRepository;
 import api.itau.test.features.transaction.dto.CreateTransactionDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class assetExists implements TransactionValidator{
+@Component
+public class AssetExists implements TransactionValidator{
 
     @Autowired
     AssetRepository assetRepository;

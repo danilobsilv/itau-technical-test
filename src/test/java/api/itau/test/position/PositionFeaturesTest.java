@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-class PositionFeatureTest {
+class PositionFeaturesTest {
 
     @Autowired
     private PositionRepository positionRepository;

@@ -2,13 +2,12 @@ package api.itau.test.features.transaction.validations;
 
 import api.itau.test.exceptionHandler.resourceNotFoundException.ResourceNotFoundException;
 import api.itau.test.features.transaction.dto.CreateTransactionDto;
-import api.itau.test.features.user.User;
 import api.itau.test.features.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-public class userExists implements TransactionValidator{
+@Component
+public class UserExists implements TransactionValidator{
 
     @Autowired
     UserRepository userRepository;

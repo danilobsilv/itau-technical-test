@@ -1,5 +1,7 @@
 package api.itau.test.exceptionHandler;
 
+import api.itau.test.exceptionHandler.InvalidPosition.InvalidPositionDto;
+import api.itau.test.exceptionHandler.InvalidPosition.InvalidPositionException;
 import api.itau.test.exceptionHandler.InvalidTransaction.InvalidTransactionDto;
 import api.itau.test.exceptionHandler.InvalidTransaction.InvalidTransactionException;
 import api.itau.test.exceptionHandler.resourceNotFoundException.ResourceNotFoundDto;
@@ -37,6 +39,18 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
                 Instant.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 ErrorTypes.INVALID_TRANSACTION,
+                exception.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto);
+    }
+
+    @ExceptionHandler(InvalidPositionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ResponseEntity<InvalidPositionDto> handleInvalidPosition(InvalidPositionException exception){
+        InvalidPositionDto errorDto = new InvalidPositionDto(
+                HttpStatus.BAD_REQUEST.value(),
+                ErrorTypes.INVALID_POSITION,
                 exception.getMessage()
         );
 

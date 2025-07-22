@@ -4,57 +4,76 @@ import api.itau.test.exceptionHandler.resourceNotFoundException.ResourceNotFound
 import api.itau.test.features.asset.Asset;
 import api.itau.test.features.asset.AssetRepository;
 import api.itau.test.features.transaction.dto.CreateTransactionDto;
+import api.itau.test.features.transaction.dto.RecentTransactionsDto;
 import api.itau.test.features.transaction.dto.TransactionDetails;
 import api.itau.test.features.transaction.validations.TransactionValidator;
 import api.itau.test.features.user.User;
 import api.itau.test.features.user.UserRepository;
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TransactionService {
 
-    @Autowired
-    TransactionRepository transactionRepository;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    AssetRepository assetRepository;
-    @Autowired
-    private List<TransactionValidator> validators;
+    private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
+    private final AssetRepository assetRepository;
+    private final List<TransactionValidator> validators;
 
     @Transactional
-    public Transaction saveTransaction(@RequestBody @Valid CreateTransactionDto data){
+    public Transaction saveTransaction(CreateTransactionDto data) {
         validators.forEach(validator -> validator.validate(data));
 
         User user = userRepository.findById(data.userId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário com ID " + data.userId() + " não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + data.userId()));
+
         Asset asset = assetRepository.findById(data.assetId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ativo com ID " + data.assetId() + " não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found with ID: " + data.assetId()));
 
-        var transaction = Transaction.builder()
-                        .user(user)
-                        .asset(asset)
-                        .transactionAmount(data.transactionAmount())
-                        .transactionUnitPrice(data.transactionUnitPrice())
-                        .transactionOperationType(data.operationType())
-                        .transactionBankBrokerage(data.transactionBankBrokerage())
-                        .transactionDateTime(data.transactionDateTime())
-                        .build();
-
-        return transactionRepository.save(transaction);
+        return transactionRepository.save(
+            Transaction.builder()
+                .user(user)
+                .asset(asset)
+                .transactionAmount(data.transactionAmount())
+                .transactionUnitPrice(data.transactionUnitPrice())
+                .transactionOperationType(data.operationType())
+                .transactionBankBrokerage(data.transactionBankBrokerage())
+                .transactionDateTime(data.transactionDateTime())
+                .build()
+        );
     }
 
-    @Transactional()
-    public Page<TransactionDetails> getAllTransactions(@PageableDefault(size = 10, sort = {"transactionId"}) Pageable pageable){
-        return transactionRepository.findAll(pageable).map(TransactionDetails::new);
+    @Transactional(readOnly = true)
+    public Page<TransactionDetails> getAllTransactions(Pageable pageable) {
+        return transactionRepository.findAll(pageable)
+                .map(TransactionDetails::new);
+    }
 
+    @Transactional(readOnly = true)
+    public List<Transaction> getRecentTransactions(RecentTransactionsDto data) {
+        if (!userRepository.existsById(data.userId())) {
+            throw new ResourceNotFoundException("User not found with ID: " + data.userId());
+        }
+        if (!assetRepository.existsById(data.assetId())) {
+            throw new ResourceNotFoundException("Asset not found with ID: " + data.assetId());
+        }
+
+        Instant startDate = data.customDate() != null
+            ? data.customDate()
+            : Instant.now().minus(30, ChronoUnit.DAYS);
+
+        return transactionRepository.findByUserAndAssetAndDateAfter(
+            data.userId(),
+            data.assetId(),
+            startDate
+        );
     }
 }
