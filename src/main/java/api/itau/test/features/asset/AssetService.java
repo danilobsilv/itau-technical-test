@@ -2,9 +2,7 @@ package api.itau.test.features.asset;
 
 import api.itau.test.features.asset.dto.AssetDetails;
 import api.itau.test.features.asset.dto.InsertAsset;
-import api.itau.test.features.user.dto.UserDetailsDTO;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

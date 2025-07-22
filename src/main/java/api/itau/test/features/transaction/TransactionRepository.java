@@ -22,4 +22,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
         @Param("startDate") Instant startDate);
 
     boolean existsByUserUserIdAndAssetAssetId(UUID userId, UUID assetId);
+
+    List<Transaction> findByUserAndAsset(UUID userId, UUID assetId);
 }
