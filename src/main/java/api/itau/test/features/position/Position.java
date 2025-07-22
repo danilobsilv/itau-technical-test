@@ -3,15 +3,13 @@ package api.itau.test.features.position;
 import api.itau.test.features.asset.Asset;
 import api.itau.test.features.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -22,27 +20,41 @@ import java.util.UUID;
 @Entity
 @Table(name = "positions")
 public class Position {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "position_id", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "position_id", updatable = false, nullable = false, columnDefinition = "char(36)")
     private UUID positionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "asset_id", nullable = false)
+    @JoinColumn(name = "asset_id")
     private Asset asset;
 
-    @Column(name = "quantity", nullable = false)
+    @Column(name = "quantity", precision = 19, scale = 8, nullable = false)
     private BigDecimal quantity;
 
-    @Column(name = "average_price", nullable = false)
+    @Column(name = "average_price", precision = 19, scale = 4, nullable = false)
     private BigDecimal averagePrice;
 
-    @Column(name = "profit_loss", nullable = false)
+    @Column(name = "current_price", precision = 19, scale = 4, nullable = false)
+    private BigDecimal currentPrice;
+
+    @Column(name = "profit_loss", precision = 19, scale = 4, nullable = false)
     private BigDecimal profitLoss;
+
+    @Column(name = "profit_loss_percentage", precision = 19, scale = 4, nullable = false)
+    private BigDecimal profitLossPercentage;
+
+    @UpdateTimestamp
+    @Column(name = "last_updated", nullable = false)
+    private LocalDateTime lastUpdated;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
 }

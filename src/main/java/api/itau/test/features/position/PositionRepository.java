@@ -15,4 +15,8 @@ public interface PositionRepository extends JpaRepository<Position, UUID> {
     List<Position> findAllByUser_UserId(UUID userId);
 
     Optional<Position> findByUserAndAsset(User user, Asset asset);
+
+    Optional<Position> findByUserIdAndAssetId(UUID assetId, UUID userId);
+
+    List<Position> findByAssetId(UUID assetId);
 }

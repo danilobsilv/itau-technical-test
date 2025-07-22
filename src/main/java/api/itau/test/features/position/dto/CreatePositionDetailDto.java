@@ -1,6 +1,6 @@
 package api.itau.test.features.position.dto;
 
-import api.itau.test.features.position.Position;
+import api.itau.test.features.position.*;
 
 import java.math.BigDecimal;
 import java.util.UUID;

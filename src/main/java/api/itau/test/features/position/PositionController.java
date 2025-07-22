@@ -29,4 +29,23 @@ public class PositionController {
         return ResponseEntity.ok(positionService.getUserPortfolio(userId));
     }
 
+    @GetMapping("/{userId}/{assetId}")
+    public ResponseEntity<PositionDetailsDto> getPosition(
+            @PathVariable UUID userId,
+            @PathVariable UUID assetId) {
+
+        Position position = positionService.getPosition(userId, assetId);
+        return ResponseEntity.ok(new PositionDetailsDto(position));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<PositionDetailsDto>> getAllPositions(
+            @PathVariable UUID userId) {
+
+        List<Position> positions = positionService.getAllPositions(userId);
+        return ResponseEntity.ok(positions.stream()
+            .map(PositionDetailsDto::new)
+            .toList());
+    }
+
 }
